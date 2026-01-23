@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spelling Fun! 🌟</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Comic Sans MS', 'Arial Rounded MT Bold', cursive;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            color: #667eea;
+            text-align: center;
+            font-size: 1.8em;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 15px;
+            font-size: 1em;
+        }
+
+        .game-area {
+            background: #f8f9ff;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .word-display {
+            background: white;
+            border: 4px solid #667eea;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 2.5em;
+            color: #333;
+            font-weight: bold;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            word-wrap: break-word;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 1em;
+            border-radius: 12px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: bold;
+            transition: all 0.3s;
+            -webkit-appearance: none;
+            flex: 1 1 auto;
+            min-width: 120px;
+        }
+
+        button:active {
+            transform: scale(0.95);
+            background: #764ba2;
+        }
+
+        .input-area {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        input[type="text"] {
+            font-size: 1.5em;
+            padding: 12px;
+            border: 3px solid #667eea;
+            border-radius: 12px;
+            width: 100%;
+            text-align: center;
+            font-family: inherit;
+            -webkit-appearance: none;
+        }
+
+        .feedback {
+            text-align: center;
+            font-size: 1.5em;
+            margin-top: 15px;
+            min-height: 50px;
+            font-weight: bold;
+        }
+
+        .correct {
+            color: #4CAF50;
+        }
+
+        .incorrect {
+            color: #f44336;
+        }
+
+        .score {
+            background: #4CAF50;
+            color: white;
+            padding: 12px;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 1.3em;
+            margin-bottom: 15px;
+        }
+
+        .star {
+            display: inline-block;
+            font-size: 2em;
+            animation: spin 1s ease-in-out;
+        }
+
+        @keyframes spin {
+            0% { transform: scale(0) rotate(0deg); }
+            50% { transform: scale(1.3) rotate(180deg); }
+            100% { transform: scale(1) rotate(360deg); }
+        }
+
+        .celebration {
+            animation: bounce 0.5s ease-in-out;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .mode-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .mode-btn {
+            background: #f0f0f0;
+            color: #333;
+            padding: 12px 10px;
+            font-size: 0.9em;
+            min-width: 0;
+        }
+
+        .mode-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 5px;
+            }
+            
+            .container {
+                padding: 15px;
+                border-radius: 15px;
+            }
+            
+            h1 {
+                font-size: 1.5em;
+            }
+            
+            .word-display {
+                font-size: 2em;
+                padding: 15px;
+                min-height: 80px;
+            }
+            
+            button {
+                padding: 10px 15px;
+                font-size: 0.9em;
+                min-width: 100px;
+            }
+            
+            .mode-btn {
+                font-size: 0.85em;
+                padding: 10px 8px;
+            }
+            
+            input[type="text"] {
+                font-size: 1.3em;
+            }
+            
+            .feedback {
+                font-size: 1.2em;
+            }
+        }
+        
+        @media (max-width: 400px) {
+            .mode-selector {
+                gap: 8px;
+            }
+            
+            .mode-btn {
+                font-size: 0.75em;
+                padding: 8px 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✨ Spelling Fun! ✨</h1>
+        <p class="subtitle">Let's practice your spellings!</p>
+
+        <div class="score">
+            Score: <span id="score">0</span> ⭐
+        </div>
+
+        <div class="mode-selector">
+            <button class="mode-btn active" onclick="setMode('see')">👀 See & Type</button>
+            <button class="mode-btn" onclick="setMode('hear')">👂 Listen & Type</button>
+            <button class="mode-btn" onclick="setMode('disappear')">💫 Disappearing</button>
+            <button class="mode-btn" onclick="setMode('flash')">⚡ Flash Cards</button>
+        </div>
+
+        <div class="game-area">
+            <div class="word-display" id="wordDisplay">Click 'Next Word' to start!</div>
+
+            <div class="input-area">
+                <input type="text" id="answerInput" placeholder="Type the word here..." style="display:none;">
+            </div>
+
+            <div class="buttons">
+                <button onclick="nextWord()">Next Word</button>
+                <button onclick="checkAnswer()" id="checkBtn" style="display:none;">Check ✓</button>
+                <button onclick="sayWord()" id="repeatBtn" style="display:none;">🔊 Say Again</button>
+                <button onclick="showAnswer()" id="showBtn" style="display:none;">Show Answer</button>
+            </div>
+
+            <div class="feedback" id="feedback"></div>
+        </div>
+
+        <div style="text-align: center; color: #666;">
+            <p>Words practiced: <span id="wordCount">0</span> / 27</p>
+        </div>
+    </div>
+
+    <script>
+        const words = [
+            'I', 'the', 'a', 'do', 'to', 'no', 'go', 'of', 'said', 'put',
+            'are', 'is', 'his', 'has', 'today', 'once', 'one', 'ask',
+            'school', 'says', 'push', 'full', 'pull', 'house', 'our', 'love'
+        ];
+
+        let currentWord = '';
+        let score = 0;
+        let wordsCompleted = new Set();
+        let mode = 'see'; // 'see', 'hear', 'disappear', or 'flash'
+        let remainingWords = [...words];
+        let disappearTimer = null;
+
+        function setMode(newMode) {
+            mode = newMode;
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            const answerInput = document.getElementById('answerInput');
+            const checkBtn = document.getElementById('checkBtn');
+            const repeatBtn = document.getElementById('repeatBtn');
+            const showBtn = document.getElementById('showBtn');
+            
+            if (mode === 'flash') {
+                answerInput.style.display = 'none';
+                checkBtn.style.display = 'none';
+                repeatBtn.style.display = 'inline-block';
+                showBtn.style.display = 'inline-block';
+            } else if (mode === 'disappear') {
+                answerInput.style.display = 'block';
+                checkBtn.style.display = 'inline-block';
+                showBtn.style.display = 'inline-block';
+                repeatBtn.style.display = 'none';
+            } else {
+                answerInput.style.display = 'block';
+                checkBtn.style.display = 'inline-block';
+                showBtn.style.display = 'none';
+                repeatBtn.style.display = mode === 'hear' ? 'inline-block' : 'none';
+            }
+            
+            nextWord();
+        }
+
+        function getRandomWord() {
+            if (remainingWords.length === 0) {
+                remainingWords = [...words];
+                wordsCompleted.clear();
+                document.getElementById('wordCount').textContent = '0';
+            }
+            const randomIndex = Math.floor(Math.random() * remainingWords.length);
+            const word = remainingWords[randomIndex];
+            remainingWords.splice(randomIndex, 1);
+            return word;
+        }
+
+        function nextWord() {
+            // Clear any existing disappear timer
+            if (disappearTimer) {
+                clearTimeout(disappearTimer);
+                disappearTimer = null;
+            }
+            
+            currentWord = getRandomWord();
+            const display = document.getElementById('wordDisplay');
+            const answerInput = document.getElementById('answerInput');
+            const feedback = document.getElementById('feedback');
+            
+            answerInput.value = '';
+            feedback.textContent = '';
+            
+            if (mode === 'see') {
+                display.textContent = currentWord;
+                answerInput.style.display = 'block';
+                document.getElementById('checkBtn').style.display = 'inline-block';
+                document.getElementById('repeatBtn').style.display = 'none';
+                answerInput.focus();
+            } else if (mode === 'hear') {
+                display.textContent = '👂 Listen carefully!';
+                sayWord();
+                answerInput.style.display = 'block';
+                document.getElementById('checkBtn').style.display = 'inline-block';
+                document.getElementById('repeatBtn').style.display = 'inline-block';
+                answerInput.focus();
+            } else if (mode === 'disappear') {
+                // Show the word with countdown on separate lines
+                display.style.display = 'block'; // Override flex layout
+                display.innerHTML = `
+                    <div style="font-size: 3em; color: #333; font-weight: bold; display: block; margin-bottom: 20px;">
+                        ${currentWord}
+                    </div>
+                    <div id="countdownText" style="font-size: 1.1em; color: #667eea; display: block;">
+                        Disappearing in 3...
+                    </div>
+                `;
+                answerInput.style.display = 'block';
+                document.getElementById('checkBtn').style.display = 'inline-block';
+                document.getElementById('repeatBtn').style.display = 'none';
+                document.getElementById('showBtn').style.display = 'inline-block';
+                
+                // Update countdown
+                let countdown = 3;
+                const countdownInterval = setInterval(() => {
+                    countdown--;
+                    const countdownEl = document.getElementById('countdownText');
+                    if (countdown > 0 && countdownEl) {
+                        countdownEl.textContent = `Disappearing in ${countdown}...`;
+                    } else {
+                        clearInterval(countdownInterval);
+                    }
+                }, 1000);
+                
+                // Make it disappear after 3 seconds
+                disappearTimer = setTimeout(() => {
+                    display.style.display = 'flex'; // Reset to flex
+                    display.textContent = '❓ Can you remember?';
+                    display.style.fontSize = '2em';
+                    display.style.color = '#667eea';
+                    answerInput.focus();
+                }, 3000);
+            } else if (mode === 'flash') {
+                display.textContent = '❓ Click "Show Answer" to see the spelling!';
+                answerInput.style.display = 'none';
+                document.getElementById('checkBtn').style.display = 'none';
+                document.getElementById('repeatBtn').style.display = 'none';
+                // Say the word in flash card mode
+                setTimeout(() => sayWord(), 300);
+            }
+        }
+
+        function sayWord() {
+            const utterance = new SpeechSynthesisUtterance(currentWord);
+            utterance.rate = 0.6; // Slower rate for clearer pronunciation
+            utterance.pitch = 1.1;
+            
+            // Try to find a British female voice
+            const voices = speechSynthesis.getVoices();
+            const britishVoice = voices.find(voice => 
+                (voice.lang.includes('en-GB') || voice.lang.includes('en-UK')) && 
+                voice.name.toLowerCase().includes('female')
+            ) || voices.find(voice => 
+                voice.lang.includes('en-GB') || voice.lang.includes('en-UK')
+            );
+            
+            if (britishVoice) {
+                utterance.voice = britishVoice;
+            }
+            
+            speechSynthesis.speak(utterance);
+        }
+
+        function showAnswer() {
+            const display = document.getElementById('wordDisplay');
+            display.textContent = currentWord;
+            display.style.fontSize = '3em';
+            display.style.color = '#333';
+            display.classList.add('celebration');
+            setTimeout(() => display.classList.remove('celebration'), 500);
+        }
+
+        function checkAnswer() {
+            const answer = document.getElementById('answerInput').value.trim();
+            const feedback = document.getElementById('feedback');
+            
+            if (answer.toLowerCase() === currentWord.toLowerCase()) {
+                feedback.innerHTML = '<span class="correct">⭐ Perfect! Well done! ⭐</span>';
+                feedback.classList.add('celebration');
+                score += 10;
+                wordsCompleted.add(currentWord);
+                document.getElementById('score').textContent = score;
+                document.getElementById('wordCount').textContent = wordsCompleted.size;
+                
+                setTimeout(() => {
+                    feedback.classList.remove('celebration');
+                    nextWord();
+                }, 1500);
+            } else {
+                feedback.innerHTML = `<span class="incorrect">Try again! The word is: ${currentWord}</span>`;
+                setTimeout(() => {
+                    feedback.textContent = '';
+                }, 2000);
+            }
+        }
+
+        // Allow pressing Enter to check answer
+        document.getElementById('answerInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkAnswer();
+            }
+        });
+    </script>
+</body>
+</html>
