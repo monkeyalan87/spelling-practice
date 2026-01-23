@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spelling Fun! 🌟</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -13,7 +16,7 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Comic Sans MS', 'Arial Rounded MT Bold', cursive;
+            font-family: 'Quicksand', 'Nunito', 'Fredoka', 'Comic Sans MS', 'Arial Rounded MT Bold', -apple-system, BlinkMacSystemFont, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 10px;
@@ -25,7 +28,7 @@
 
         .container {
             background: white;
-            border-radius: 20px;
+            border-radius: 25px;
             padding: 20px;
             max-width: 500px;
             width: 100%;
@@ -35,20 +38,23 @@
         h1 {
             color: #667eea;
             text-align: center;
-            font-size: 1.8em;
+            font-size: 2em;
             margin-bottom: 5px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
         }
 
         .subtitle {
             text-align: center;
             color: #666;
             margin-bottom: 15px;
-            font-size: 1em;
+            font-size: 1.1em;
+            font-weight: 500;
         }
 
         .game-area {
             background: #f8f9ff;
-            border-radius: 15px;
+            border-radius: 20px;
             padding: 20px;
             margin-bottom: 15px;
         }
@@ -56,13 +62,13 @@
         .word-display {
             background: white;
             border: 4px solid #667eea;
-            border-radius: 15px;
+            border-radius: 20px;
             padding: 20px;
             text-align: center;
             margin-bottom: 20px;
             font-size: 2.5em;
             color: #333;
-            font-weight: bold;
+            font-weight: 700;
             min-height: 100px;
             display: flex;
             align-items: center;
@@ -82,16 +88,17 @@
             background: #667eea;
             color: white;
             border: none;
-            padding: 12px 20px;
-            font-size: 1em;
-            border-radius: 12px;
+            padding: 14px 22px;
+            font-size: 1.1em;
+            border-radius: 15px;
             cursor: pointer;
             font-family: inherit;
-            font-weight: bold;
+            font-weight: 600;
             transition: all 0.3s;
             -webkit-appearance: none;
             flex: 1 1 auto;
             min-width: 120px;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
         }
 
         button:active {
@@ -105,13 +112,14 @@
         }
 
         input[type="text"] {
-            font-size: 1.5em;
-            padding: 12px;
+            font-size: 1.6em;
+            padding: 14px;
             border: 3px solid #667eea;
-            border-radius: 12px;
+            border-radius: 15px;
             width: 100%;
             text-align: center;
             font-family: inherit;
+            font-weight: 600;
             -webkit-appearance: none;
         }
 
@@ -120,7 +128,7 @@
             font-size: 1.5em;
             margin-top: 15px;
             min-height: 50px;
-            font-weight: bold;
+            font-weight: 700;
         }
 
         .correct {
@@ -134,11 +142,13 @@
         .score {
             background: #4CAF50;
             color: white;
-            padding: 12px;
-            border-radius: 12px;
+            padding: 14px;
+            border-radius: 15px;
             text-align: center;
-            font-size: 1.3em;
+            font-size: 1.4em;
             margin-bottom: 15px;
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
         }
 
         .star {
@@ -170,16 +180,19 @@
         }
 
         .mode-btn {
-            background: #f0f0f0;
+            background: #e8ebf5;
             color: #333;
-            padding: 12px 10px;
-            font-size: 0.9em;
+            padding: 14px 10px;
+            font-size: 1em;
             min-width: 0;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
         .mode-btn.active {
             background: #667eea;
             color: white;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
         }
 
         @media (max-width: 600px) {
@@ -189,11 +202,11 @@
             
             .container {
                 padding: 15px;
-                border-radius: 15px;
+                border-radius: 20px;
             }
             
             h1 {
-                font-size: 1.5em;
+                font-size: 1.7em;
             }
             
             .word-display {
@@ -203,22 +216,22 @@
             }
             
             button {
-                padding: 10px 15px;
-                font-size: 0.9em;
+                padding: 12px 18px;
+                font-size: 1em;
                 min-width: 100px;
             }
             
             .mode-btn {
-                font-size: 0.85em;
-                padding: 10px 8px;
+                font-size: 0.9em;
+                padding: 12px 8px;
             }
             
             input[type="text"] {
-                font-size: 1.3em;
+                font-size: 1.4em;
             }
             
             .feedback {
-                font-size: 1.2em;
+                font-size: 1.3em;
             }
         }
         
@@ -228,8 +241,8 @@
             }
             
             .mode-btn {
-                font-size: 0.75em;
-                padding: 8px 5px;
+                font-size: 0.85em;
+                padding: 10px 6px;
             }
         }
     </style>
@@ -405,22 +418,57 @@
         function sayWord() {
             const utterance = new SpeechSynthesisUtterance(currentWord);
             utterance.rate = 0.6; // Slower rate for clearer pronunciation
-            utterance.pitch = 1.1;
+            utterance.pitch = 1.0;
             
-            // Try to find a British female voice
-            const voices = speechSynthesis.getVoices();
-            const britishVoice = voices.find(voice => 
-                (voice.lang.includes('en-GB') || voice.lang.includes('en-UK')) && 
-                voice.name.toLowerCase().includes('female')
-            ) || voices.find(voice => 
-                voice.lang.includes('en-GB') || voice.lang.includes('en-UK')
-            );
-            
-            if (britishVoice) {
-                utterance.voice = britishVoice;
+            // Function to select the best British voice
+            function selectBritishVoice() {
+                const voices = speechSynthesis.getVoices();
+                
+                // Priority order for iOS/Safari British voices
+                const preferredVoices = [
+                    'Kate',           // iOS UK female
+                    'Serena',         // iOS UK female  
+                    'Stephanie',      // iOS UK female
+                    'Daniel',         // iOS UK male (backup)
+                    'Google UK English Female',
+                    'Microsoft Hazel Desktop - English (Great Britain)',
+                ];
+                
+                // Try to find preferred voices
+                for (const preferred of preferredVoices) {
+                    const voice = voices.find(v => v.name === preferred);
+                    if (voice) return voice;
+                }
+                
+                // Fallback: any UK English voice
+                const ukVoice = voices.find(v => 
+                    v.lang === 'en-GB' || 
+                    v.lang === 'en-UK' ||
+                    v.name.includes('UK') ||
+                    v.name.includes('British')
+                );
+                if (ukVoice) return ukVoice;
+                
+                // Last resort: any English voice
+                return voices.find(v => v.lang.startsWith('en'));
             }
             
+            const voice = selectBritishVoice();
+            if (voice) {
+                utterance.voice = voice;
+            }
+            
+            // Set language to British English
+            utterance.lang = 'en-GB';
+            
             speechSynthesis.speak(utterance);
+        }
+        
+        // Load voices on page load (important for iOS)
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = () => {
+                speechSynthesis.getVoices();
+            };
         }
 
         function showAnswer() {
