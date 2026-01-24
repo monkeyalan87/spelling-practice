@@ -255,16 +255,6 @@
         <div class="score">
             Score: <span id="score">0</span> ⭐
         </div>
-        
-        <details style="margin-bottom: 15px; padding: 10px; background: #f0f0f0; border-radius: 10px;">
-            <summary style="cursor: pointer; font-weight: 600; padding: 5px;">🔊 Voice Settings</summary>
-            <div style="margin-top: 10px;">
-                <select id="voiceSelector" style="width: 100%; padding: 8px; font-size: 0.9em; border-radius: 8px; margin-bottom: 8px; font-family: inherit;">
-                    <option value="">Loading voices...</option>
-                </select>
-                <button onclick="testVoice()" style="width: 100%; padding: 10px; background: #667eea; font-size: 0.9em;">Test Voice</button>
-            </div>
-        </details>
 
         <div class="mode-selector">
             <button class="mode-btn active" onclick="setMode('see')">👀 See & Type</button>
@@ -308,66 +298,8 @@
         let mode = 'see'; // 'see', 'hear', 'disappear', or 'flash'
         let remainingWords = [...words];
         let disappearTimer = null;
-        let selectedVoice = null;
-        let allVoices = [];
+        let currentAudio = null;
 
-        // Voice loading and selection
-        function loadVoices() {
-            allVoices = speechSynthesis.getVoices();
-            const selector = document.getElementById('voiceSelector');
-            
-            if (allVoices.length === 0) {
-                setTimeout(loadVoices, 100);
-                return;
-            }
-            
-            // Filter for English voices, prioritize UK
-            const englishVoices = allVoices.filter(v => v.lang.startsWith('en'));
-            const ukVoices = englishVoices.filter(v => v.lang.includes('GB') || v.lang.includes('UK'));
-            const sortedVoices = [...ukVoices, ...englishVoices.filter(v => !ukVoices.includes(v))];
-            
-            selector.innerHTML = '';
-            sortedVoices.forEach((voice) => {
-                const option = document.createElement('option');
-                option.value = voice.name;
-                option.textContent = `${voice.name} (${voice.lang})`;
-                
-                // Auto-select Kate or Serena if available
-                if (voice.name === 'Kate' || voice.name === 'Serena' || voice.name === 'Stephanie') {
-                    option.selected = true;
-                    selectedVoice = voice;
-                }
-                selector.appendChild(option);
-            });
-            
-            selector.onchange = function() {
-                selectedVoice = sortedVoices.find(v => v.name === this.value);
-            };
-            
-            // If no voice selected yet, use first UK voice or first voice
-            if (!selectedVoice && sortedVoices.length > 0) {
-                selectedVoice = sortedVoices[0];
-                selector.value = selectedVoice.name;
-            }
-        }
-        
-        function testVoice() {
-            if (!selectedVoice) {
-                alert('No voice selected. Please wait for voices to load.');
-                return;
-            }
-            const utterance = new SpeechSynthesisUtterance('Hello! I will help you learn spellings.');
-            utterance.rate = 0.6;
-            utterance.voice = selectedVoice;
-            utterance.lang = 'en-GB';
-            speechSynthesis.speak(utterance);
-        }
-        
-        // Load voices on page load
-        if (speechSynthesis.onvoiceschanged !== undefined) {
-            speechSynthesis.onvoiceschanged = loadVoices;
-        }
-        setTimeout(loadVoices, 100);
 
         function setMode(newMode) {
             mode = newMode;
@@ -486,17 +418,25 @@
         }
 
         function sayWord() {
-            const utterance = new SpeechSynthesisUtterance(currentWord);
-            utterance.rate = 0.6; // Slower rate for clearer pronunciation
-            utterance.pitch = 1.0;
-            utterance.lang = 'en-GB';
-            
-            // Use selected voice if available
-            if (selectedVoice) {
-                utterance.voice = selectedVoice;
+            playWordAudio(currentWord);
+        }
+        
+        // Play audio file for a word
+        function playWordAudio(word) {
+            // Stop any currently playing audio
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
             }
             
-            speechSynthesis.speak(utterance);
+            // Create new audio element - assumes files are in an 'audio' folder
+            // and named exactly as the word (e.g., 'I.mp3', 'the.mp3', 'said.mp3')
+            currentAudio = new Audio(`audio/${word}.mp3`);
+            
+            currentAudio.play().catch(error => {
+                console.error('Error playing audio for word:', word, error);
+                alert(`Audio file not found: audio/${word}.mp3. Please check the file exists.`);
+            });
         }
 
         function showAnswer() {
