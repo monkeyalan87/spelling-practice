@@ -281,12 +281,20 @@
         </div>
 
         <div style="text-align: center; color: #666;">
-            <p>Words practiced: <span id="wordCount">0</span> / 27</p>
+            <p>Progress: <span id="wordCount">0 mastered / 26 total</span></p>
+            <div id="masteredSection" style="display: none; margin-top: 10px; padding: 10px; background: #e8f5e9; border-radius: 10px;">
+                <p style="margin-bottom: 5px; font-weight: 600; color: #2e7d32;">✅ Mastered Words:</p>
+                <p id="masteredWords" style="color: #2e7d32; font-size: 0.9em;"></p>
+            </div>
+            <button onclick="resetProgress()" style="margin-top: 10px; padding: 8px 16px; background: #ff9800; font-size: 0.9em; border-radius: 10px;">Reset Progress</button>
         </div>
     </div>
 
     <script>
-        const words = [
+        // Difficult words appear more frequently
+        const difficultWords = ['of', 'said', 'put', 'are', 'his', 'once', 'one', 'school', 'full', 'push', 'house', 'our', 'love'];
+        
+        const allWords = [
             'I', 'the', 'a', 'do', 'to', 'no', 'go', 'of', 'said', 'put',
             'are', 'is', 'his', 'has', 'today', 'once', 'one', 'ask',
             'school', 'says', 'push', 'full', 'pull', 'house', 'our', 'love'
@@ -294,11 +302,65 @@
 
         let currentWord = '';
         let score = 0;
-        let wordsCompleted = new Set();
         let mode = 'see'; // 'see', 'hear', 'disappear', or 'flash'
-        let remainingWords = [...words];
         let disappearTimer = null;
         let currentAudio = null;
+        
+        // Track how many times each word has been answered correctly
+        let wordMastery = {};
+        allWords.forEach(word => {
+            wordMastery[word] = 0; // Needs 3 correct answers to be mastered
+        });
+        
+        // Get active words (not yet mastered)
+        function getActiveWords() {
+            return allWords.filter(word => wordMastery[word] < 3);
+        }
+        
+        // Save progress to localStorage
+        function saveProgress() {
+            localStorage.setItem('spellingProgress', JSON.stringify(wordMastery));
+        }
+        
+        // Load progress from localStorage
+        function loadProgress() {
+            const saved = localStorage.getItem('spellingProgress');
+            if (saved) {
+                wordMastery = JSON.parse(saved);
+            }
+            updateProgressDisplay();
+        }
+        
+        // Reset all progress
+        function resetProgress() {
+            if (confirm('Reset all progress? Your daughter will start fresh with all words.')) {
+                allWords.forEach(word => {
+                    wordMastery[word] = 0;
+                });
+                saveProgress();
+                updateProgressDisplay();
+                alert('Progress reset! All words are back in practice.');
+            }
+        }
+        
+        // Update the progress display
+        function updateProgressDisplay() {
+            const activeWords = getActiveWords();
+            const masteredCount = allWords.length - activeWords.length;
+            document.getElementById('wordCount').textContent = `${masteredCount} mastered / ${allWords.length} total`;
+            
+            // Show mastered words
+            const masteredList = allWords.filter(word => wordMastery[word] >= 3);
+            if (masteredList.length > 0) {
+                document.getElementById('masteredWords').textContent = masteredList.join(', ');
+                document.getElementById('masteredSection').style.display = 'block';
+            } else {
+                document.getElementById('masteredSection').style.display = 'none';
+            }
+        }
+        
+        // Load progress on page load
+        loadProgress();
 
 
         function setMode(newMode) {
@@ -332,15 +394,27 @@
         }
 
         function getRandomWord() {
-            if (remainingWords.length === 0) {
-                remainingWords = [...words];
-                wordsCompleted.clear();
-                document.getElementById('wordCount').textContent = '0';
+            const activeWords = getActiveWords();
+            
+            if (activeWords.length === 0) {
+                alert('🎉 Amazing! All words mastered! 🎉\n\nClick "Reset Progress" to practice again.');
+                return allWords[0]; // Fallback
             }
-            const randomIndex = Math.floor(Math.random() * remainingWords.length);
-            const word = remainingWords[randomIndex];
-            remainingWords.splice(randomIndex, 1);
-            return word;
+            
+            // Create weighted array - difficult words appear 3x more often
+            const weightedWords = [];
+            activeWords.forEach(word => {
+                if (difficultWords.includes(word)) {
+                    // Difficult words appear 3 times (3x weight)
+                    weightedWords.push(word, word, word);
+                } else {
+                    // Easy words appear once
+                    weightedWords.push(word);
+                }
+            });
+            
+            const randomIndex = Math.floor(Math.random() * weightedWords.length);
+            return weightedWords[randomIndex];
         }
 
         function nextWord() {
@@ -453,22 +527,39 @@
             const feedback = document.getElementById('feedback');
             
             if (answer.toLowerCase() === currentWord.toLowerCase()) {
-                feedback.innerHTML = '<span class="correct">⭐ Perfect! Well done! ⭐</span>';
+                // Correct answer!
+                wordMastery[currentWord]++;
+                saveProgress();
+                
+                const masteryLevel = wordMastery[currentWord];
+                let message = '⭐ Perfect! Well done! ⭐';
+                
+                if (masteryLevel === 3) {
+                    message = `🎉 AMAZING! "${currentWord}" is now MASTERED! 🎉`;
+                } else if (masteryLevel === 2) {
+                    message = `⭐ Excellent! One more correct and "${currentWord}" is mastered! ⭐`;
+                }
+                
+                feedback.innerHTML = `<span class="correct">${message}</span>`;
                 feedback.classList.add('celebration');
                 score += 10;
-                wordsCompleted.add(currentWord);
                 document.getElementById('score').textContent = score;
-                document.getElementById('wordCount').textContent = wordsCompleted.size;
+                updateProgressDisplay();
                 
                 setTimeout(() => {
                     feedback.classList.remove('celebration');
                     nextWord();
-                }, 1500);
+                }, 2000);
             } else {
+                // Incorrect answer - reset mastery for this word
+                if (wordMastery[currentWord] > 0) {
+                    wordMastery[currentWord]--;
+                    saveProgress();
+                }
                 feedback.innerHTML = `<span class="incorrect">Try again! The word is: ${currentWord}</span>`;
                 setTimeout(() => {
                     feedback.textContent = '';
-                }, 2000);
+                }, 2500);
             }
         }
 
