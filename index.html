@@ -722,14 +722,14 @@
       <div class="lead">
         <input id="childName" class="name-edit" maxlength="14" value="Eve">'s spelling words
       </div>
-      <p>These are called "exception" words because you can't sound them out &mdash; you learn them by Look, Say, Cover, Write, Check!</p>
+      <p>These are called "exception" words because you can't sound them out &mdash; you learn them by Look, Cover, Write, Check!</p>
     </div>
 
     <div class="mode-grid">
       <button class="mode-card learn" onclick="startLearn('all')">
         <span class="badge">🔍</span>
         <span class="title">Learn</span>
-        <span class="desc">Look, Say, Cover, Write, Check</span>
+        <span class="desc">Look, Cover, Write, Check</span>
       </button>
       <button class="mode-card test" onclick="goToTestSetup()">
         <span class="badge">🎧</span>
@@ -1033,9 +1033,10 @@ function playWord(word, slow){
   const audio = new Audio(`audio/${word.toLowerCase()}.mp3`);
   audio.playbackRate = slow ? 0.7 : 1;
   let fellBack = false;
-  const fallback = () => {
+  const fallback = (err) => {
     if(fellBack) return;
     fellBack = true;
+    console.warn(`Could not play audio/${word.toLowerCase()}.mp3 — check it exists with that exact lowercase filename. Falling back to text-to-speech.`, err);
     speak(word, slow);
   };
   audio.addEventListener('error', fallback);
