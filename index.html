@@ -766,9 +766,8 @@
 
     <div class="steps-row">
       <span class="step-dot" data-step="0">Look</span>
-      <span class="step-dot" data-step="1">Say</span>
-      <span class="step-dot" data-step="2">Cover &amp; Write</span>
-      <span class="step-dot" data-step="3">Check</span>
+      <span class="step-dot" data-step="1">Cover &amp; Write</span>
+      <span class="step-dot" data-step="2">Check</span>
     </div>
 
     <div class="page-card">
@@ -797,7 +796,7 @@
 
       <div class="nav-row">
         <button id="learnBackBtn" class="btn outline hidden" onclick="learnStepBack()">Back</button>
-        <button id="learnNextBtn" class="btn" onclick="learnStepNext()">Next: Say it &rarr;</button>
+        <button id="learnNextBtn" class="btn" onclick="learnStepNext()">Next: Cover &amp; Write &rarr;</button>
         <button id="learnCheckBtn" class="btn leaf hidden" onclick="learnCheck()">Check</button>
         <button id="learnContinueBtn" class="btn hidden" onclick="learnAdvanceWord()">Continue &rarr;</button>
       </div>
@@ -842,7 +841,6 @@
         <button class="icon-btn" onclick="speakCurrentTest()">🔊 Hear the word</button>
         <button id="slowBtnTest" class="icon-btn slow" onclick="toggleSlowTest()">🐢 Slow</button>
       </div>
-      <p id="voiceNote" class="voice-note hidden">No UK voice found on this device &mdash; using the closest available voice.</p>
 
       <div class="answer-wrap">
         <input id="testInput" class="answer-input" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="type what you hear">
@@ -908,7 +906,7 @@ let slowModeTest = false;
 
 let learnQueue = [];
 let learnIndex = 0;
-let learnStep = 0; // 0 look, 1 say, 2 cover/write, 3 check
+let learnStep = 0; // 0 look, 1 cover/write, 2 check
 let learnSessionCorrect = 0;
 
 let testQueue = [];
@@ -1011,12 +1009,6 @@ function pickVoice(){
   if(!chosen) chosen = voices.find(v => v.lang && v.lang.startsWith('en') && /female/i.test(v.name));
   if(!chosen) chosen = voices.find(v => v.lang && v.lang.startsWith('en'));
   ukVoice = chosen || null;
-
-  const note = document.getElementById('voiceNote');
-  if(note){
-    if(ukVoice && ukVoice.lang === 'en-GB'){ note.classList.add('hidden'); }
-    else { note.classList.remove('hidden'); }
-  }
   return ukVoice;
 }
 function speak(text, slow){
@@ -1029,17 +1021,25 @@ function speak(text, slow){
   u.rate = slow ? 0.62 : 0.88;
   speechSynthesis.speak(u);
 }
-function speakSpelling(word, slow){
-  if(!('speechSynthesis' in window)) return;
+
+/* ---------------- Word audio ----------------
+   Looks for a recorded clip at audio/<word>.mp3 (lowercase). If that file
+   is missing or fails to load, it falls back to the device's UK text-to-speech
+   voice automatically, so the app keeps working while the audio library is
+   still being built up. Drop your own MP3 recordings into an "audio" folder
+   next to this HTML file, named e.g. audio/the.mp3, audio/school.mp3, etc. */
+function playWord(word, slow){
   speechSynthesis.cancel();
-  const v = ukVoice || pickVoice();
-  word.toUpperCase().split('').forEach(letter=>{
-    const u = new SpeechSynthesisUtterance(letter);
-    if(v) u.voice = v;
-    u.lang = 'en-GB';
-    u.rate = slow ? 0.55 : 0.7;
-    speechSynthesis.speak(u);
-  });
+  const audio = new Audio(`audio/${word.toLowerCase()}.mp3`);
+  audio.playbackRate = slow ? 0.7 : 1;
+  let fellBack = false;
+  const fallback = () => {
+    if(fellBack) return;
+    fellBack = true;
+    speak(word, slow);
+  };
+  audio.addEventListener('error', fallback);
+  audio.play().catch(fallback);
 }
 
 /* ---------------- Confetti & mascot reactions ---------------- */
@@ -1137,17 +1137,11 @@ function updateLearnStage(){
 
   if(learnStep === 0){
     captionEl.textContent = 'Look closely at the word. Notice every letter.';
-    nextBtn.textContent = 'Next: Say it →';
-    flap.classList.remove('shown');
-    writeArea.classList.add('hidden');
-    soundRow.classList.remove('hidden');
-  } else if(learnStep === 1){
-    captionEl.textContent = 'Say the word out loud, then say the letters.';
     nextBtn.textContent = 'Next: Cover & Write →';
     flap.classList.remove('shown');
     writeArea.classList.add('hidden');
     soundRow.classList.remove('hidden');
-  } else if(learnStep === 2){
+  } else if(learnStep === 1){
     captionEl.textContent = "Now it's covered — write it from memory!";
     flap.classList.add('shown');
     writeArea.classList.remove('hidden');
@@ -1159,7 +1153,7 @@ function updateLearnStage(){
   document.getElementById('learnBackBtn').classList.toggle('hidden', learnStep === 0);
 }
 function learnStepNext(){
-  if(learnStep < 2){
+  if(learnStep < 1){
     learnStep += 1;
     updateLearnStage();
   }
@@ -1197,7 +1191,7 @@ function learnCheck(){
   document.getElementById('learnContinueBtn').classList.remove('hidden');
   document.getElementById('learnContinueBtn').textContent =
     (learnIndex < learnQueue.length - 1) ? 'Continue →' : 'Finish';
-  learnStep = 3;
+  learnStep = 2;
 }
 function learnAdvanceWord(){
   if(learnIndex < learnQueue.length - 1){
@@ -1217,13 +1211,7 @@ function showLearnSummary(){
   if(learnQueue.length && learnSessionCorrect/learnQueue.length >= 0.8) confettiBurst(28);
 }
 function speakCurrent(){
-  const word = learnQueue[learnIndex];
-  if(learnStep === 1){
-    speak(word, slowMode);
-    setTimeout(()=> speakSpelling(word, slowMode), 700);
-  } else {
-    speak(word, slowMode);
-  }
+  playWord(learnQueue[learnIndex], slowMode);
 }
 function toggleSlow(){
   slowMode = !slowMode;
@@ -1263,7 +1251,7 @@ function setupTestWord(){
   document.getElementById('testInput').focus();
 }
 function speakCurrentTest(){
-  speak(testQueue[testIndex], slowModeTest);
+  playWord(testQueue[testIndex], slowModeTest);
 }
 function toggleSlowTest(){
   slowModeTest = !slowModeTest;
@@ -1358,7 +1346,7 @@ function renderWordList(){
   const grid = document.getElementById('wordGrid');
   grid.innerHTML = words.map(w => {
     const cls = isMastered(w) ? 'mastered' : isTricky(w) ? 'tricky' : '';
-    return `<button class="word-chip ${cls}" onclick="speak('${w.replace(/'/g,"\\'")}', false)">
+    return `<button class="word-chip ${cls}" onclick="playWord('${w.replace(/'/g,"\\'")}', false)">
       <span><span class="dot"></span> ${w}</span>
       <span class="speak-mark">🔊</span>
     </button>`;
